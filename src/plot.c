@@ -3,6 +3,8 @@
 /* Declarations */
 static void cp_plot_real_render(CpPlot* self);
 static void cp_plot_real_render_bounding_box(CpPlot* self);
+static void cp_plot_render_background(CpPlot* self);
+static void cp_plot_real_render_background(CpPlot* self);
 
 static void cp_plot_finalize(GObject* obj);
 static void cp_plot_get_property(GObject * object, guint property_id, GValue * value, GParamSpec * pspec);
@@ -14,13 +16,27 @@ static void set_border_color(CpPlot* self, CpColor* ptr)
 	*self->border_color = *ptr;
 }
 
+static void set_bg_color(CpPlot* self, CpColor* ptr)
+{
+	*self->bg_color = *ptr;
+}
+
+static void set_handler(CpPlot* self, CpHandler* ptr)
+{
+	if(self->handler) g_object_unref(self->handler);
+	g_object_ref(ptr);
+	self->handler = ptr;
+}
+
 /* Private */
 enum
 {
 	DUMMY_PROP,
 	WIDTH_PROP,
 	HEIGHT_PROP,
+	HANDLER_PROP,
 	BORDER_COLOR_PROP,
+	BG_COLOR_PROP,
 };
 
 enum
@@ -32,8 +48,9 @@ enum
 
 #define DEFAULT_HEIGHT 400
 #define DEFAULT_WIDTH 400
+#define DEFAULT_LINE_WIDTH 2
 
-static gpointer cp_plot_parent_class = NULL;
+static GObject* cp_plot_parent_class = NULL;
 static guint plot_signals[LAST_SIGNAL] = {0};
 
 /* Special functions */
@@ -41,8 +58,11 @@ static guint plot_signals[LAST_SIGNAL] = {0};
 static void cp_plot_class_init (CpPlotClass* klass)
 {
 	cp_plot_parent_class = g_type_class_peek_parent(klass);
+	
 	CP_PLOT_CLASS (klass)->render = cp_plot_real_render;
 	CP_PLOT_CLASS (klass)->render_bounding_box = cp_plot_real_render_bounding_box;
+	CP_PLOT_CLASS (klass)->render_background = cp_plot_real_render_background;
+	
 	G_OBJECT_CLASS (klass)->get_property = cp_plot_get_property;
 	G_OBJECT_CLASS (klass)->set_property = cp_plot_set_property;
 	G_OBJECT_CLASS (klass)->finalize = cp_plot_finalize;
@@ -60,6 +80,18 @@ static void cp_plot_class_init (CpPlotClass* klass)
 		G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB | G_PARAM_READABLE | G_PARAM_WRITABLE);
 	g_object_class_install_property(G_OBJECT_CLASS (klass), BORDER_COLOR_PROP, pspec);
 	
+	pspec = g_param_spec_boxed ("bg-color", "bg-color", "bg-color", CP_TYPE_COLOR,
+		G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB | G_PARAM_READABLE | G_PARAM_WRITABLE);
+	g_object_class_install_property(G_OBJECT_CLASS (klass), BORDER_COLOR_PROP, pspec);
+		
+	pspec = g_param_spec_object("handler", "handler", "handler", CP_TYPE_HANDLER,
+		G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB | G_PARAM_READABLE | G_PARAM_WRITABLE);
+	g_object_class_install_property(G_OBJECT_CLASS (klass), HANDLER_PROP, pspec);
+	
+	pspec = g_param_spec_double("line-width", "line-width", "line-width", 0, G_MAXDOUBLE, DEFAULT_LINE_WIDTH,
+		G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB | G_PARAM_READABLE | G_PARAM_WRITABLE);
+	g_object_class_install_property(G_OBJECT_CLASS (klass), HEIGHT_PROP, pspec);
+	
 	/* signals */
 	plot_signals[PRE_RENDER_SIGNAL] = g_signal_new("pre-render", CP_TYPE_PLOT,
 		G_SIGNAL_RUN_LAST, 0, NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
@@ -70,14 +102,19 @@ static void cp_plot_class_init (CpPlotClass* klass)
 static void cp_plot_instance_init(CpPlot * self)
 {
 	self->border_color = cp_color_new_rgba(0, 0, 0, 1);
+	self->bg_color = cp_color_new_rgba(1, 1, 1, 1);
 	self->width = DEFAULT_WIDTH;
 	self->height = DEFAULT_HEIGHT;
+	self->line_width = DEFAULT_LINE_WIDTH;
 }
 
 static void cp_plot_finalize (GObject* obj)
 {
 	CpPlot* self = CP_PLOT(obj);
-	cp_color_free(self->border_color);
+	if(self->border_color) cp_color_free(self->border_color);
+	if(self->bg_color) cp_color_free(self->bg_color);
+	if(self->handler) g_object_unref(self->handler);
+
 	G_OBJECT_CLASS(cp_plot_parent_class)->finalize(obj);
 }
 
@@ -127,6 +164,14 @@ static void cp_plot_get_property (GObject* object, guint property_id, GValue* va
 			g_value_set_boxed(value, self->border_color);
 			break;
 		
+		case HANDLER_PROP:
+			g_value_set_object(value, self->handler);
+			break;
+			
+		case BG_COLOR_PROP:
+			g_value_set_boxed(value, self->bg_color);
+			break;
+		
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 			break;
@@ -151,6 +196,14 @@ static void cp_plot_set_property(GObject * object, guint property_id, const GVal
 			set_border_color(self, g_value_get_boxed(value));
 			break;
 			
+		case HANDLER_PROP:
+			set_handler(self, g_value_get_object(value));
+			break;
+			
+		case BG_COLOR_PROP:
+			set_bg_color(self, g_value_get_boxed(value));
+			break;
+			
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
 			break;
@@ -168,10 +221,13 @@ void cp_plot_render (CpPlot* self)
 
 void cp_plot_real_render(CpPlot* self)
 {
-	g_return_if_fail(self->handler == NULL);
+	g_return_if_fail(self->handler != NULL);
 	
 	cp_handler_prepare(self->handler, self);
-	g_debug("Plot rendered with size == (%d, %d)!", self->width, self->height);
+	
+	cp_plot_render_background(self);
+	cp_plot_render_bounding_box(self);
+	
 	cp_handler_commit(self->handler, self);
 }
 
@@ -182,9 +238,24 @@ void cp_plot_render_bounding_box(CpPlot* self)
 
 void cp_plot_real_render_bounding_box(CpPlot* self)
 {
-	cairo_set_source_rgba(self->cr, 0, 0, 0, 1); // line-color
-	cairo_set_line_width(self->cr, 2); // line-width
-	gdouble v2 = 2 * 2;
-	cairo_rectangle(self->cr, 2, 2, self->width - v2, self->height - v2);
+	CpColor* cc = self->border_color;
+	cairo_set_source_rgba(self->cr, cc->r, cc->g, cc->b, cc->a);
+	cairo_set_line_width(self->cr, self->line_width);
+	gdouble w2 = self->line_width / 2;
+	cairo_rectangle(self->cr, w2, w2, self->width - self->line_width, self->height - self->line_width);
 	cairo_stroke(self->cr);
+}
+
+void cp_plot_render_background(CpPlot* self)
+{
+	CP_PLOT_GET_CLASS(self)->render_background(self);
+}
+
+void cp_plot_real_render_background(CpPlot* self)
+{
+	// TODO: accept other sources. Is this the color theme idea?
+	CpColor* cc = self->bg_color;
+	cairo_set_source_rgba(self->cr, cc->r, cc->g, cc->b, cc->a);
+	cairo_rectangle(self->cr, 0, 0, self->width, self->height);
+	cairo_fill(self->cr);
 }

@@ -6,7 +6,7 @@
 
 G_BEGIN_DECLS
 
-#define CP_TYPE_HANDLER (cp_plot_get_type ())
+#define CP_TYPE_HANDLER (cp_handler_get_type ())
 #define CP_HANDLER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), CP_TYPE_HANDLER, CpHandler))
 #define CP_HANDLER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), CP_TYPE_HANDLER, CpHandlerClass))
 #define CP_IS_HANDLER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CP_TYPE_HANDLER))

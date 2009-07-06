@@ -104,5 +104,6 @@ void cp_handler_commit(CpHandler* self, CpPlot* plot)
 
 void cp_handler_real_commit(CpHandler* self, CpPlot* plot)
 {
-	
+	if(plot->cr) cairo_destroy(plot->cr);
+	if(self->surface) cairo_surface_destroy(self->surface);
 }

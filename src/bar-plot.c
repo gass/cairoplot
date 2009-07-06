@@ -1,7 +1,6 @@
 #include "bar-plot.h"
 
 /* Declarations */
-static void cp_bar_plot_real_render(CpPlot* self);
 static void cp_bar_plot_finalize(GObject* obj);
 static void cp_bar_plot_get_property(GObject * object, guint property_id, GValue * value, GParamSpec * pspec);
 static void cp_bar_plot_set_property(GObject * object, guint property_id, const GValue * value, GParamSpec * pspec);
@@ -13,14 +12,13 @@ enum
 	ROUND_RECT_PROPERTY,
 };
 
-static gpointer cp_bar_plot_parent_class = NULL;
+static CpPlot* cp_bar_plot_parent_class = NULL;
 
 /* Special functions */
 
 static void cp_bar_plot_class_init (CpBarPlotClass* klass)
 {
 	cp_bar_plot_parent_class = g_type_class_peek_parent(klass);
-	CP_PLOT_CLASS (klass)->render = cp_bar_plot_real_render;
 	G_OBJECT_CLASS (klass)->get_property = cp_bar_plot_get_property;
 	G_OBJECT_CLASS (klass)->set_property = cp_bar_plot_set_property;
 	G_OBJECT_CLASS (klass)->finalize = cp_bar_plot_finalize;
@@ -107,9 +105,4 @@ static void cp_bar_plot_set_property(GObject * object, guint property_id, const 
 CpPlot* cp_bar_plot_new()
 {
 	return CP_PLOT(g_object_new(CP_TYPE_BAR_PLOT, NULL));
-}
-
-void cp_bar_plot_real_render(CpPlot* self)
-{
-	g_debug("BarPlot rendered with size == (%d, %d)!", self->width, self->height);	
 }

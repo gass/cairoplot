@@ -1,1 +1,11 @@
 This is the initial port of Python CairoPlot to C.
+
+Classes:
+
+-> Plot (10%)
+	-> BarPlot (10%)
+	
+-> Handler (100%)
+	-> PNGHandler (100%)
+	
+-> Color (100%)
