@@ -2,6 +2,8 @@
 
 /* Declarations */
 static void cp_plot_real_render(CpPlot* self);
+static void cp_plot_real_render_bounding_box(CpPlot* self);
+
 static void cp_plot_finalize(GObject* obj);
 static void cp_plot_get_property(GObject * object, guint property_id, GValue * value, GParamSpec * pspec);
 static void cp_plot_set_property(GObject * object, guint property_id, const GValue * value, GParamSpec * pspec);
@@ -40,6 +42,7 @@ static void cp_plot_class_init (CpPlotClass* klass)
 {
 	cp_plot_parent_class = g_type_class_peek_parent(klass);
 	CP_PLOT_CLASS (klass)->render = cp_plot_real_render;
+	CP_PLOT_CLASS (klass)->render_bounding_box = cp_plot_real_render_bounding_box;
 	G_OBJECT_CLASS (klass)->get_property = cp_plot_get_property;
 	G_OBJECT_CLASS (klass)->set_property = cp_plot_set_property;
 	G_OBJECT_CLASS (klass)->finalize = cp_plot_finalize;
@@ -98,9 +101,8 @@ GType cp_plot_get_type (void)
 			NULL
 		};
 		
-		cp_plot_type_id = g_type_register_static
-		(
-			G_TYPE_OBJECT, "CpPlot", &g_define_type_info, 0
+		cp_plot_type_id = g_type_register_static(
+			G_TYPE_OBJECT, "CpPlot", &g_define_type_info, G_TYPE_FLAG_ABSTRACT
 		);
 	}
 	
@@ -157,11 +159,6 @@ static void cp_plot_set_property(GObject * object, guint property_id, const GVal
 
 /* Other methods */
 
-CpPlot* cp_plot_new()
-{
-	return CP_PLOT(g_object_new(CP_TYPE_PLOT, NULL));
-}
-
 void cp_plot_render (CpPlot* self)
 {
 	g_signal_emit(self, plot_signals[PRE_RENDER_SIGNAL], 0);
@@ -171,5 +168,23 @@ void cp_plot_render (CpPlot* self)
 
 void cp_plot_real_render(CpPlot* self)
 {
+	g_return_if_fail(self->handler == NULL);
+	
+	cp_handler_prepare(self->handler, self);
 	g_debug("Plot rendered with size == (%d, %d)!", self->width, self->height);
+	cp_handler_commit(self->handler, self);
+}
+
+void cp_plot_render_bounding_box(CpPlot* self)
+{
+	CP_PLOT_GET_CLASS(self)->render_bounding_box(self);
+}
+
+void cp_plot_real_render_bounding_box(CpPlot* self)
+{
+	cairo_set_source_rgba(self->cr, 0, 0, 0, 1); // line-color
+	cairo_set_line_width(self->cr, 2); // line-width
+	gdouble v2 = 2 * 2;
+	cairo_rectangle(self->cr, 2, 2, self->width - v2, self->height - v2);
+	cairo_stroke(self->cr);
 }

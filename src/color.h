@@ -13,7 +13,7 @@ G_BEGIN_DECLS
 typedef struct
 {
 	GType type;
-	double r,g,b,a;
+	gdouble r,g,b,a;
 } CpColor;
 
 G_END_DECLS
@@ -21,7 +21,7 @@ G_END_DECLS
 GType cp_color_get_type();
 CpColor* cp_color_new();
 CpColor* cp_color_copy(const CpColor* object);
-CpColor* cp_color_new_rgba(double r, double g, double b, double a);
+CpColor* cp_color_new_rgba(gdouble r, gdouble g, gdouble b, gdouble a);
 void cp_color_free(CpColor* self);
 
 #endif

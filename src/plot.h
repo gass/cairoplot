@@ -1,9 +1,10 @@
 #ifndef __CP_PLOT_H__
 #define __CP_PLOT_H__
 
-#include <glib.h>
-#include <glib-object.h>
+#include <pango/pangocairo.h>
 #include "color.h"
+#include "handler.h"
+#include "types.h"
 
 G_BEGIN_DECLS
 
@@ -14,22 +15,9 @@ G_BEGIN_DECLS
 #define CP_IS_PLOT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CP_TYPE_PLOT))
 #define CP_PLOT_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), CP_TYPE_PLOT, CpPlotClass))
 
-typedef struct
-{
-	GObject parent_instance;	
-	CpColor* border_color;
-	int width, height;
-} CpPlot;
-
-typedef struct
-{
-	GObjectClass parent_class;
-	void (*render) (CpPlot* self);
-} CpPlotClass;
-
 GType cp_plot_get_type (void);
 void cp_plot_render(CpPlot* self);
-CpPlot* cp_plot_new();
+void cp_plot_render_bounding_box(CpPlot* self);
 
 G_END_DECLS
 

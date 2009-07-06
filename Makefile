@@ -8,7 +8,7 @@ SOURCES=$(wildcard src/*.c)
 OBJECTS=$(SOURCES:.c=.o)
 
 # Platform dependent
-RM=rm -rf
+RM=rm -f
 NAME=libcairoplot.so
 
 # Rules
