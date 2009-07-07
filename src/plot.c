@@ -11,15 +11,6 @@ static void cp_plot_get_property(GObject * object, guint property_id, GValue * v
 static void cp_plot_set_property(GObject * object, guint property_id, const GValue * value, GParamSpec * pspec);
 
 /* aux */
-static void set_border_color(CpPlot* self, CpColor* ptr)
-{
-	*self->border_color = *ptr;
-}
-
-static void set_bg_color(CpPlot* self, CpColor* ptr)
-{
-	*self->bg_color = *ptr;
-}
 
 static void set_handler(CpPlot* self, CpHandler* ptr)
 {
@@ -196,7 +187,7 @@ static void cp_plot_set_property(GObject * object, guint property_id, const GVal
 			break;
 			
 		case BORDER_COLOR_PROP:
-			set_border_color(self, g_value_get_boxed(value));
+			*self->border_color = *CP_COLOR(g_value_get_boxed(value));
 			break;
 			
 		case HANDLER_PROP:
@@ -204,7 +195,7 @@ static void cp_plot_set_property(GObject * object, guint property_id, const GVal
 			break;
 			
 		case BG_COLOR_PROP:
-			set_bg_color(self, g_value_get_boxed(value));
+			*self->bg_color =  *CP_COLOR(g_value_get_boxed(value));
 			break;
 			
 		default:

@@ -2,10 +2,14 @@ This is the initial port of Python CairoPlot to C.
 
 Classes:
 
--> Plot (10%)
-	-> BarPlot (10%)
+-> LabelList (100%) 	-- Holds a list of labels, with the size, angle and color property.
+
+-> Plot (10%) -- Abstract. Draws the background, bounding box and other tasks.
+	-> BarPlot (10%) -- Draws a vertical or horizontal plot.
 	
--> Handler (100%)
-	-> PNGHandler (100%)
+-> Handler (100%) -- Abstract. Handles the plot surface and cairo context. 
+	-> PNGHandler (100%) -- For PNG output.
 	
--> Color (100%)
+Boxed types:
+
+-> Color (100%) -- Represents a RGBA color;

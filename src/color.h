@@ -20,6 +20,8 @@ GType cp_color_get_type();
 CpColor* cp_color_new();
 CpColor* cp_color_copy(const CpColor* object);
 CpColor* cp_color_new_rgba(gdouble r, gdouble g, gdouble b, gdouble a);
+void cp_color_set_rgba(CpColor* self, gdouble r, gdouble g, gdouble b, gdouble a);
+void cp_color_get_rgba(CpColor* self, gdouble* r, gdouble* g, gdouble* b, gdouble* a);
 void cp_color_free(CpColor* self);
 
 #endif
