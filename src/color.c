@@ -17,7 +17,6 @@ GType cp_color_get_type()
 CpColor* cp_color_new()
 {
 	CpColor *cc = g_slice_new(CpColor);
-	cc->type = CP_TYPE_COLOR;
 	
 	return cc;
 }

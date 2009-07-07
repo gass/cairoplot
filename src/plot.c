@@ -36,7 +36,8 @@ enum
 	HEIGHT_PROP,
 	HANDLER_PROP,
 	BORDER_COLOR_PROP,
-	BG_COLOR_PROP,
+	LINE_WIDTH_PROP,
+	BG_COLOR_PROP
 };
 
 enum
@@ -82,7 +83,7 @@ static void cp_plot_class_init (CpPlotClass* klass)
 	
 	pspec = g_param_spec_boxed ("bg-color", "bg-color", "bg-color", CP_TYPE_COLOR,
 		G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB | G_PARAM_READABLE | G_PARAM_WRITABLE);
-	g_object_class_install_property(G_OBJECT_CLASS (klass), BORDER_COLOR_PROP, pspec);
+	g_object_class_install_property(G_OBJECT_CLASS (klass), BG_COLOR_PROP, pspec);
 		
 	pspec = g_param_spec_object("handler", "handler", "handler", CP_TYPE_HANDLER,
 		G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB | G_PARAM_READABLE | G_PARAM_WRITABLE);
@@ -90,7 +91,7 @@ static void cp_plot_class_init (CpPlotClass* klass)
 	
 	pspec = g_param_spec_double("line-width", "line-width", "line-width", 0, G_MAXDOUBLE, DEFAULT_LINE_WIDTH,
 		G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB | G_PARAM_READABLE | G_PARAM_WRITABLE);
-	g_object_class_install_property(G_OBJECT_CLASS (klass), HEIGHT_PROP, pspec);
+	g_object_class_install_property(G_OBJECT_CLASS (klass), LINE_WIDTH_PROP, pspec);
 	
 	/* signals */
 	plot_signals[PRE_RENDER_SIGNAL] = g_signal_new("pre-render", CP_TYPE_PLOT,
@@ -114,6 +115,8 @@ static void cp_plot_finalize (GObject* obj)
 	if(self->border_color) cp_color_free(self->border_color);
 	if(self->bg_color) cp_color_free(self->bg_color);
 	if(self->handler) g_object_unref(self->handler);
+	if(self->v_labels) g_boxed_free(G_TYPE_STRV, self->v_labels);
+	if(self->h_labels) g_boxed_free(G_TYPE_STRV, self->h_labels);
 
 	G_OBJECT_CLASS(cp_plot_parent_class)->finalize(obj);
 }

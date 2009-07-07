@@ -8,11 +8,9 @@ G_BEGIN_DECLS
 
 #define CP_TYPE_COLOR             (cp_color_get_type())
 #define CP_COLOR(object)          ((CpColor*)object)
-#define CP_IS_COLOR(object)       ((object) && (CP_COLOR(object)->type == CP_TYPE_COLOR))
 
 typedef struct
 {
-	GType type;
 	gdouble r,g,b,a;
 } CpColor;
 

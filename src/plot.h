@@ -5,6 +5,7 @@
 #include "color.h"
 #include "handler.h"
 #include "types.h"
+#include "label.h"
 
 G_BEGIN_DECLS
 

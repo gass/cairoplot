@@ -15,9 +15,16 @@ typedef struct
 {
 	GObject parent_instance;
 	cairo_t* cr;
+	CpHandler* handler;
+
 	CpColor* border_color;
 	CpColor* bg_color;
-	CpHandler* handler;
+	
+	gint v_labels_lenght;
+	gchar** v_labels;
+	gint h_labels_lenght;
+	gchar** h_labels;
+	
 	gdouble line_width;
 	gint width, height;
 } CpPlot;
