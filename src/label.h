@@ -1,14 +1,25 @@
 #ifndef __CP_LABEL_H__
 #define __CP_LABEL_H__
 
-#include <glib-object.h>
+#include "color.h"
 
 G_BEGIN_DECLS
 
-typedef gchar** CpLabel;
+/**
+ * Represents a list of labels and its properties.
+ */
+typedef struct
+{
+	CpColor* color;
+	gchar** list;
+	gdouble angle;
+	gsize list_size;
+} CpLabelList;
 
-CpLabel cp_label_new(guint size, gchar* label, ...);
-void cp_label_free(CpLabel ptr);
+CpLabelList* cp_label_list_new(gsize list_size, gchar* label, ...);
+CpLabelList* cp_label_list_newv(gsize list_size, gchar** labels);
+CpLabelList* cp_label_list_copy(CpLabelList* list);
+void cp_label_list_free(CpLabelList* list);
 
 G_END_DECLS
 
