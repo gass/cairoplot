@@ -25,3 +25,9 @@ $(NAME): $(OBJECTS)
 .PHONY: clean
 clean:
 	$(RM) src/*.o $(NAME)
+
+.PHONY: commit
+commit:
+	make clean
+	git add .
+	git commit
