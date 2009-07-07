@@ -9,6 +9,9 @@ G_BEGIN_DECLS
 #define CP_TYPE_COLOR             (cp_color_get_type())
 #define CP_COLOR(object)          ((CpColor*)object)
 
+/**
+ * Boxed Type that represents a color in Red, Green, Blue and Alpha format.
+ */
 typedef struct
 {
 	gdouble r,g,b,a;

@@ -12,6 +12,9 @@ G_BEGIN_DECLS
 #define CP_IS_PNG_HANDLER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CP_TYPE_PNG_HANDLER))
 #define CP_PNG_HANDLER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), CP_TYPE_PNG_HANDLER, CpPNGHandlerClass))
 
+/**
+ * Handler implementation for PNG images.
+ */
 typedef struct
 {
 	CpHandler parent_instance;

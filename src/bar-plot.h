@@ -12,6 +12,9 @@ G_BEGIN_DECLS
 #define CP_IS_BAR_PLOT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CP_TYPE_BAR_PLOT))
 #define CP_BAR_PLOT_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), CP_TYPE_BAR_PLOT, CpBarPlotClass))
 
+/**
+ * BarPlot implementation.
+ */
 typedef struct
 {
 	CpPlot parent_instance;
